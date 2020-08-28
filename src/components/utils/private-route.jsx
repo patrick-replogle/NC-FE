@@ -17,11 +17,11 @@ function PrivateRoute({ component: Component, path, ...props }) {
           const body = {
             token: ls.get("access_token"),
             token_type_hint: "access_token",
-            client_id: "0oa9qxckmhGd2aLsZ4x6",
+            client_id: "0oasjox1z5iMEk04b4x6",
           };
 
           const response = await axios.post(
-            "https://dev-599411.okta.com/oauth2/default/v1/introspect",
+            "https://dev-519458.okta.com/oauth2/default/v1/introspect",
             qs.stringify(body)
           );
 
