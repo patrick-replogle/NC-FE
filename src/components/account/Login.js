@@ -36,7 +36,7 @@ const Login = () => {
       code_challenge: hash,
     };
 
-    const redirectURL = `https://dev-599411.okta.com/oauth2/default/v1/authorize?${qs.stringify(
+    const redirectURL = `https://dev-519458.okta.com/oauth2/default/v1/authorize?${qs.stringify(
       query
     )}`;
     window.location.replace(`${redirectURL}`);
