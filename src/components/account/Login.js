@@ -27,7 +27,7 @@ const Login = () => {
       .replace(/\//g, "_")
       .replace(/=/g, "");
     const query = {
-      client_id: "0oa9qxckmhGd2aLsZ4x6",
+      client_id: "0oasjox1z5iMEk04b4x6",
       response_type: "code",
       scope: "openid",
       redirect_uri: `${process.env.REACT_APP_FRONT_END_BASE_URL}/login-redirect-url`,
