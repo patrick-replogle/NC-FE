@@ -202,7 +202,7 @@ const AccountDrawer = (props) => {
 
     try {
       const idToken = ls.get("id_token");
-      const url = `https://dev-599411.okta.com/oauth2/default/v1/logout`;
+      const url = `https://dev-519458.okta.com/oauth2/default/v1/logout`;
 
       const body = {
         id_token_hint: idToken,
