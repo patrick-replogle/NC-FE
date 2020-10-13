@@ -186,12 +186,12 @@ const AccountDrawer = () => {
         });
     }
     // eslint-disable-next-line
-  }, [update]);
+  }, [setUser]);
 
   const [modalIsOpen, setModelIsOpen] = useState(false);
 
   const ReffedModalContent = React.forwardRef((props, ref) => (
-    <UserEditModalContent {...props} ref={ref} />
+    <UserEditModalContent {...props} ref={ref} setUser={setUser} user={user} />
   ));
 
   const toggleModalOpen = (e) => {

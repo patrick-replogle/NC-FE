@@ -194,21 +194,17 @@ export const rootReducer = (state = initialState, { type, payload }) => {
         gender: userInfo.gender,
       };
 
-      // console.log(Object.values(payload));
-      // console.log(formattedUserinfo);
-
       const compareInputToCurrentUserData = Object.values(
         formattedUserinfo
       ).filter((attribute) => {
         return Object.values(payload).includes(attribute);
       });
-      // console.log("here1", compareInputToCurrentUserData);
+
       if (
         Object.values(state.savedUserUpdateInfo).length === 0 ||
         compareInputToCurrentUserData.length <
           Object.values(formattedUserinfo).length + 1
       ) {
-        // console.log("here");
         return {
           ...state,
           savedUserUpdateInfo: {

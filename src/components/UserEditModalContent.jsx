@@ -12,14 +12,9 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Geocoder from "react-mapbox-gl-geocoder";
 
 import { USER_BY_ID } from "../graphql/users/user-queries";
-
 import { UPDATE_USER } from "../graphql/users/user-mutations";
 import { axiosWithAuth } from "../utilities/axiosWithAuth";
 import { print } from "graphql";
-
-import { saveUserUpdateInfo } from "../utilities/actions";
-import { useDispatch, useSelector } from "react-redux";
-
 import { Icon } from "@iconify/react";
 import closeRectangle from "@iconify/icons-jam/close-rectangle";
 
@@ -88,20 +83,17 @@ function UserEditModalContent(props) {
 
   const addressLabel = useRef();
   const geoInput = useRef();
-  const me = localStorage.getItem("user");
-  const [user, setUser] = useState({});
 
-  const dispatch = useDispatch();
-  const userInputInfo = useSelector((state) => state.savedUserUpdateInfo);
+  const me = localStorage.getItem("user");
 
   const [userInputs, setUserInputs] = useState({
     firstName: "",
     lastName: "",
     gender: "",
     address: "",
+    latitude: "",
+    longitude: "",
   });
-
-  const { firstName, lastName, gender, address } = userInputs;
 
   useEffect(() => {
     if (me) {
@@ -114,13 +106,13 @@ function UserEditModalContent(props) {
         },
       })
         .then((res) => {
-          setUser(res.data.data.getUserById);
-
           setUserInputs({
-            firstName: user.firstName,
-            lastName: user.lastName,
-            gender: user.gender,
-            address: user.address,
+            firstName: res.data.data.getUserById.firstName,
+            lastName: res.data.data.getUserById.lastName,
+            gender: res.data.data.getUserById.gender,
+            address: res.data.data.getUserById.address,
+            latitude: res.data.data.getUserById.latitude,
+            longitude: res.data.data.getUserById.longitude,
           });
         })
         .catch((err) => {
@@ -128,22 +120,19 @@ function UserEditModalContent(props) {
         });
     }
     // eslint-disable-next-line
-  }, [setUser]);
+  }, []);
 
   useEffect(() => {
     const geocoder = document.querySelector(".geocoder-container");
-
     geoInput.current = geocoder.children[0].children[0];
-
     geoInput.current.name = "address";
-
     geoInput.current.classList.add(textBoxClass.addressInput);
     geoInput.current.style.marginTop = 0;
     geoInput.current.style.paddingBottom = "3%";
 
-    address
-      ? (geoInput.current.value = address)
-      : (geoInput.current.value = userInputInfo.address);
+    userInputs.address
+      ? (geoInput.current.value = userInputs.address)
+      : (geoInput.current.value = userInputs.address);
 
     addressLabel.current = geoInput.current;
 
@@ -151,75 +140,35 @@ function UserEditModalContent(props) {
   }, []);
 
   const handleChange = (e) => {
-    if (e.preventDefault) e.preventDefault();
-
-    setUserInputs({
-      ...userInputs,
-      [e.target.name]: e.target.value,
-    });
-
-    dispatch(
-      saveUserUpdateInfo({
-        ...userInputInfo,
-        [e.target.name]: e.target.value,
-      })
-    );
-  };
-
-  const handleAddressChange = (e) => {
-    setUserInputs({
-      ...userInputs,
-      latitude: e.latitude,
-      longitude: e.longitude,
-    });
-
-    dispatch(
-      saveUserUpdateInfo({
-        ...userInputInfo,
-        latitude: e.latitude,
-        longitude: e.longitude,
-      })
-    );
-  };
-
-  const handleSubmit = async (e) => {
     e.preventDefault();
+    setUserInputs({ ...userInputs, [e.target.name]: e.target.value });
+  };
 
-    try {
-      const updateResponse = await axiosWithAuth()({
-        url: `${process.env.REACT_APP_BASE_URL}/graphql`,
-        method: "post",
-        data: {
-          query: print(UPDATE_USER),
-          variables: {
-            input: {
-              ...userInputInfo,
-              address: geoInput.current.value,
-            },
-            id: me,
-          },
-        },
-      });
+  const handleAddressChange = (e) => {};
 
-      if (!(updateResponse.status === 200))
-        throw new Error("Problem with update request");
-      else {
-        const userInfoFromSessionStorage = JSON.parse(
-          sessionStorage.getItem("user")
-        );
-        sessionStorage.setItem(
-          "user",
-          JSON.stringify({
-            ...userInfoFromSessionStorage,
-            ...userInputInfo,
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axiosWithAuth()({
+      url: `${process.env.REACT_APP_BASE_URL}/graphql`,
+      method: "post",
+      data: {
+        query: print(UPDATE_USER),
+        variables: {
+          input: {
+            ...userInputs,
             address: geoInput.current.value,
-          })
-        );
+          },
+          id: me,
+        },
+      },
+    })
+      .then((res) => {
+        props.setUser(res.data.data.updateUser);
         props.toggleOpen();
-      }
-    } catch (err) {
-      console.dir(err);
-    }
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
   };
 
   return (
@@ -238,7 +187,7 @@ function UserEditModalContent(props) {
               name="firstName"
               type="text"
               onChange={handleChange}
-              value={firstName ? firstName : userInputInfo.firstName}
+              value={userInputs.firstName}
             />
           }
         />
@@ -251,7 +200,7 @@ function UserEditModalContent(props) {
               name="lastName"
               type="text"
               onChange={handleChange}
-              value={lastName ? lastName : userInputInfo.lastName}
+              value={userInputs.lastName}
             />
           }
         />
@@ -262,7 +211,7 @@ function UserEditModalContent(props) {
           control={
             <Select
               labelId="gender-label"
-              value={gender ? gender : userInputInfo.gender}
+              value={userInputs.gender}
               onChange={handleChange}
               label="Gender"
               name="gender"
@@ -288,11 +237,16 @@ function UserEditModalContent(props) {
                 hideOnSelect={true}
                 queryParams={"queryParams"}
                 updateInputOnSelect={true}
+                initialInputValue={userInputs.address}
               />
             </div>
           }
         />
-        <Button type="submit" onClick={handleSubmit}>
+        <Button
+          disabled={userInputs.firstName === "" || userInputs.lastName === ""}
+          type="submit"
+          onClick={handleSubmit}
+        >
           Update
         </Button>
       </div>

@@ -7,13 +7,6 @@ import VariableMainContent from "./variableMainContent";
 import { makeStyles } from "@material-ui/core/styles";
 import { useLocation } from "react-router-dom";
 
-//kyles imports
-import ls from "local-storage";
-import jwt from "jwt-decode";
-import { USER_BY_EMAIL } from "../graphql/users/user-queries";
-import { axiosWithAuth } from "../utilities/axiosWithAuth";
-import { print } from "graphql";
-
 const styles = makeStyles((theme) => {
   return {
     "grid-container": {
@@ -110,28 +103,6 @@ function GridStructure(props) {
   useEffect(() => {
     setUrlLocation(location.pathname.split("/")[1]);
   }, [location]);
-
-  useEffect(() => {
-    if (ls.get("access_token")) {
-      const token = ls.get("access_token");
-      const decodedToken = jwt(token).sub;
-      axiosWithAuth()({
-        url: `${process.env.REACT_APP_BASE_URL}/graphql`,
-        method: "post",
-        data: {
-          query: print(USER_BY_EMAIL),
-          variables: { input: { email: decodedToken } },
-        },
-      })
-        .then((res) => {
-          sessionStorage.setItem(
-            "user",
-            JSON.stringify(res.data.data.getUserByEmail)
-          );
-        })
-        .catch((err) => console.log(err));
-    }
-  }, []);
 
   return (
     <div className={classes["grid-container"]}>
