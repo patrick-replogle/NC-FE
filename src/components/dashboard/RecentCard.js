@@ -51,7 +51,7 @@ import Emoji from "../other/Emoji";
 
 const RecentCard = (props) => {
   // console.log(`RecentCard -> props`, props);
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const classes = cardStyles();
   const dispatch = useDispatch();
   const [expanded, setExpanded] = useState(false);
@@ -75,7 +75,7 @@ const RecentCard = (props) => {
   const addFavoriteEvent = () => {
     const addFavorite = {
       event_id: Number(props.id),
-      user_id: Number(me.id),
+      user_id: Number(me),
     };
 
     axiosWithAuth()
@@ -92,7 +92,7 @@ const RecentCard = (props) => {
   const removeFavoriteEvent = () => {
     const removeFavorite = {
       event_id: Number(props.id),
-      user_id: Number(me.id),
+      user_id: Number(me),
     };
 
     axiosWithAuth()

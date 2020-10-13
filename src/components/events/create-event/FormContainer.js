@@ -41,7 +41,7 @@ const initialState = {
 };
 
 const FormContainer = () => {
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const page = useSelector((state) => state.page);
   const [hashtags, setHashtags] = useState([]);
   const [modifiers, setModifiers] = useState([]);
@@ -142,7 +142,7 @@ const FormContainer = () => {
             longitude: values.longitude,
             latitude: values.latitude,
             photo: photo ? photo : null,
-            user_id: parseInt(me.id),
+            user_id: parseInt(me),
             allergenWarnings: JSON.stringify({
               allergenWarnings: [...allergenList],
             }),
@@ -200,7 +200,7 @@ const FormContainer = () => {
                         if (deletedIngredientsList.length > 0) {
                           deletedIngredientsList.forEach(async (ingredient) => {
                             try {
-                              // const response = 
+                              // const response =
                               await axiosWithAuth().post(
                                 `${process.env.REACT_APP_BASE_URL}/graphql`,
                                 {
@@ -232,7 +232,7 @@ const FormContainer = () => {
                   } else {
                     deletedIngredientsList.forEach(async (ingredient) => {
                       try {
-                        // const response = 
+                        // const response =
                         await axiosWithAuth().post(
                           `${process.env.REACT_APP_BASE_URL}/graphql`,
                           {

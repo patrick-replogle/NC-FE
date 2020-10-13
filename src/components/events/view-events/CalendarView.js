@@ -25,7 +25,7 @@ import { parseTime } from "../../../utilities/functions";
 const CalendarView = () => {
   const eventList = useSelector((state) => state.eventList);
   const selectedMonth = useSelector((state) => state.selectedMonth);
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const update = useSelector((state) => state.update);
   const dispatch = useDispatch();
   const classes = buttonStyles();
@@ -45,7 +45,7 @@ const CalendarView = () => {
       method: "post",
       data: {
         query: print(GET_INVITED_EVENTS),
-        variables: { id: me.id },
+        variables: { id: me },
       },
     })
       .then((res) => {
@@ -61,8 +61,7 @@ const CalendarView = () => {
           return {
             ...ele,
             status: ele.users
-              ? ele.users.filter((user) => `${user.id}` === `${me.id}`)[0]
-                  .status
+              ? ele.users.filter((user) => `${user.id}` === `${me}`)[0].status
               : null,
           };
         });
@@ -77,7 +76,7 @@ const CalendarView = () => {
       .finally(function () {
         setIsLoading(false);
       });
-  }, [dispatch, me.id, update]);
+  }, [dispatch, me, update]);
 
   useEffect(() => {
     return () => dispatch(makeActive(null));

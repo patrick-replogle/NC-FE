@@ -17,7 +17,7 @@ import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 const RecentEvents = () => {
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const update = useSelector((state) => state.update);
   const eventList = useSelector((state) => state.eventList);
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ const RecentEvents = () => {
         method: "post",
         data: {
           query: print(GET_INVITED_EVENTS),
-          variables: { id: me.id },
+          variables: { id: me },
         },
       })
         .then((res) => {
@@ -61,7 +61,7 @@ const RecentEvents = () => {
         method: "post",
         data: {
           query: print(GET_FAVORITE_EVENTS),
-          variables: { id: me.id },
+          variables: { id: me },
         },
       })
         .then((res) => {
@@ -104,7 +104,7 @@ const RecentEvents = () => {
                 {...ele}
                 key={ele.id}
                 currentStatus={
-                  ele.users.filter((u) => `${u.id}` === `${me.id}`)[0].status
+                  ele.users.filter((u) => `${u.id}` === `${me}`)[0].status
                 }
               />
             ))

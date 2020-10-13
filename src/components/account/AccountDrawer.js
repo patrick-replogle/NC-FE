@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { axiosWithAuth } from "../../utilities/axiosWithAuth";
 import { print } from "graphql";
-import { GET_AUTHORED_EVENTS } from "../../graphql/users/user-queries";
+import {
+  GET_AUTHORED_EVENTS,
+  USER_BY_ID,
+} from "../../graphql/users/user-queries";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
@@ -11,15 +15,10 @@ import Typography from "@material-ui/core/Typography";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import Modal from "@material-ui/core/Modal";
-// import { useTheme } from "@material-ui/core/styles";
-// import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 import { Icon } from "@iconify/react";
 import logoutIcon from "@iconify/icons-heroicons-outline/logout";
 import closeRectangle from "@iconify/icons-jam/close-rectangle";
-
-import ls from "local-storage";
-import qs from "querystring";
 
 import { makeInitials } from "../../utilities/functions";
 import { cardStyles } from "../../styles";
@@ -137,15 +136,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AccountDrawer = (props) => {
+const AccountDrawer = () => {
   const styleClasses = styles();
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const cardClasses = cardStyles();
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [myList, setMyList] = useState(me.eventsOwned);
   const update = useSelector((state) => state.update);
+  const history = useHistory();
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     if (me) {
@@ -154,11 +155,31 @@ const AccountDrawer = (props) => {
         method: "post",
         data: {
           query: print(GET_AUTHORED_EVENTS),
-          variables: { id: me.id },
+          variables: { id: me },
         },
       })
         .then((res) => {
           setMyList(sortList(res.data.data.getAuthoredEvents));
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    }
+    // eslint-disable-next-line
+  }, [update]);
+
+  useEffect(() => {
+    if (me) {
+      axiosWithAuth()({
+        url: `${process.env.REACT_APP_BASE_URL}/graphql`,
+        method: "post",
+        data: {
+          query: print(USER_BY_ID),
+          variables: { id: me },
+        },
+      })
+        .then((res) => {
+          setUser(res.data.data.getUserById);
         })
         .catch((err) => {
           console.log(err.message);
@@ -199,23 +220,8 @@ const AccountDrawer = (props) => {
 
   const logout = async (e) => {
     e.preventDefault();
-
-    try {
-      const idToken = ls.get("id_token");
-      const url = `https://dev-519458.okta.com/oauth2/default/v1/logout`;
-
-      const body = {
-        id_token_hint: idToken,
-        post_logout_redirect_uri: process.env.REACT_APP_FRONT_END_BASE_URL,
-      };
-
-      localStorage.clear();
-      sessionStorage.clear();
-
-      window.location.replace(`${url}?${qs.stringify(body)}`);
-    } catch (err) {
-      console.dir(err);
-    }
+    localStorage.clear();
+    history.push("/login");
   };
 
   return (
@@ -236,9 +242,9 @@ const AccountDrawer = (props) => {
           alignItems: "center",
         }}
         alt="Picture User Avatar"
-        src={me.photo !== "null" ? me.photo : null}
+        src={user.photo !== "null" ? user.photo : null}
       >
-        {me.photo === "null" && <Typography>{makeInitials(me)}</Typography>}
+        {user.photo === "null" && <Typography>{makeInitials(user)}</Typography>}
       </Avatar>
       <main
         className={clsx(classes.content, {
@@ -288,15 +294,15 @@ const AccountDrawer = (props) => {
               onClick={startEditAvatar}
               aria-label="avatar"
               className={styleClasses.avatar}
-              src={me.photo !== "null" ? me.photo : null}
+              src={user.photo !== "null" ? user.photo : null}
               alt="Profile Avatar"
             >
-              {me.photo === "null" && (
-                <Typography>{makeInitials(me)}</Typography>
+              {user.photo === "null" && (
+                <Typography>{makeInitials(user)}</Typography>
               )}
             </Avatar>
             <Typography variant="h5">
-              {me.firstName} {me.lastName}
+              {user.firstName} {user.lastName}
             </Typography>
           </div>
           <div className={styleClasses["middle-content-container"]}>
@@ -307,10 +313,10 @@ const AccountDrawer = (props) => {
 
             <div>
               {"Pets: "}
-              {me.pets ? (
-                me.pets.map((pet, ind) => (
+              {user.pets ? (
+                user.pets.map((pet, ind) => (
                   <Typography component="span" key={ind}>
-                    {ind < me.pets.length - 1 ? `${pet}, ` : `${pet}.`}
+                    {ind < user.pets.length - 1 ? `${pet}, ` : `${pet}.`}
                   </Typography>
                 ))
               ) : (
@@ -319,24 +325,24 @@ const AccountDrawer = (props) => {
             </div>
             <div>
               {"Children: "}
-              {me.children ? (
-                me.children.map((kid, ind) => (
+              {user.children ? (
+                user.children.map((kid, ind) => (
                   <Typography component="span" key={ind}>
-                    {ind < me.children.length - 1 ? `${kid}, ` : `${kid}.`}
+                    {ind < user.children.length - 1 ? `${kid}, ` : `${kid}.`}
                   </Typography>
                 ))
               ) : (
                 <Typography component="span">No children</Typography>
               )}
             </div>
-            <Typography>Address: {me.address} </Typography>
-            <Typography>Gender: {me.gender}</Typography>
+            <Typography>Address: {user.address} </Typography>
+            <Typography>Gender: {user.gender}</Typography>
             <Typography variant="h6">Dietary Preferences</Typography>
             <div>
-              {me.dietaryPreferences ? (
-                me.dietaryPreferences.map((pref, ind) => (
+              {user.dietaryPreferences ? (
+                user.dietaryPreferences.map((pref, ind) => (
                   <Typography key={ind}>
-                    {ind < me.dietaryPreferences.length - 1
+                    {ind < user.dietaryPreferences.length - 1
                       ? `${pref}, `
                       : `${pref}.`}
                   </Typography>

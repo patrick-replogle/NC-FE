@@ -21,7 +21,7 @@ const FeedCard = ({
   photo,
   message,
 }) => {
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const [collapseMessage, setCollapseMessage] = useState(
     message && message.length > 100 ? message.substring(0, 99) + "..." : ""
   );

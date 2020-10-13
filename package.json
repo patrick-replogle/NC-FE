@@ -56,7 +56,7 @@
     "yup": "^0.29.1"
   },
   "scripts": {
-    "start": " BROWSER=none react-scripts start",
+    "start": "react-scripts start",
     "build": "CI= react-scripts build",
     "test": "react-scripts test --env=jsdom-fourteen",
     "eject": "react-scripts eject",

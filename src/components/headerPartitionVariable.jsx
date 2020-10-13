@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useLocation } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
-import { useSelector } from "react-redux";
 
 import MonthPicker from "./events/view-events/MonthPicker";
 import CreateEventHeader from "./events/create-event/CreateEventHeader";
@@ -21,14 +20,12 @@ const styles = makeStyles({
     textAlign: "center",
     display: "flex",
     justifyContent: "flex-start",
-    // paddingTop: "10px",
     paddingLeft: "20px",
     alignItems: "center",
   },
 });
 
 function VariableHeader(props) {
-  const event = useSelector((state) => state.currentEvent);
   const classes = styles();
   const location = useLocation();
   const [urlLocation, setUrlLocation] = useState(

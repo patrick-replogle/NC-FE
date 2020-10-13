@@ -55,6 +55,9 @@ const Register = () => {
                   ) {
                     errors.email = "Invalid email address";
                   }
+                  if (!values.password) {
+                    errors.password = "Required";
+                  }
                   if (!values.firstName) {
                     errors.firstName = "Required";
                   }
@@ -77,6 +80,7 @@ const Register = () => {
                     email: values.email,
                     firstName: values.firstName,
                     lastName: values.lastName,
+                    password: values.password,
                     latitude: values.location.latitude,
                     longitude: values.location.longitude,
                     gender: values.gender,
@@ -99,7 +103,9 @@ const Register = () => {
                     )
                     .then((res) => {
                       setSubmitting(false);
-                      history.push("/register-check-email");
+                      localStorage.setItem("access_token", res.data.token);
+                      localStorage.setItem("user", res.data.id);
+                      history.push("/login");
                     })
                     .catch((err) => {
                       setSubmitting(false);

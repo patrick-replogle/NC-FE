@@ -17,7 +17,7 @@ import { print } from "graphql";
 import { axiosWithAuth } from "../../../utilities/axiosWithAuth";
 
 const CommentsCard = (props) => {
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const classes = cardStyles();
   const buttonClass = buttonStyles();
   const [newCommentWords, setNewCommentWords] = useState("");
@@ -47,7 +47,7 @@ const CommentsCard = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const commentObject = {
-      user_id: Number(me.id),
+      user_id: Number(me),
       event_id: Number(props.eventId),
       parent_id: -1,
       root_id: -1,

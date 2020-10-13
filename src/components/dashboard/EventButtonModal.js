@@ -32,7 +32,7 @@ const EventButtonModal = ({ eventId, userId }) => {
   const thisURL = location.pathname.split("/");
   const dispatch = useDispatch();
   const history = useHistory();
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const currentEvent = useSelector((state) => state.currentEvent);
   const modalClasses = modalStyles();
   const isOwner = Number(me.id) === Number(userId);
@@ -134,7 +134,7 @@ const EventButtonModal = ({ eventId, userId }) => {
                       onKeyDown={handleListKeyDown}
                     >
                       {thisURL.length > 2 ? (
-                        `${me.id}` === `${currentEvent.user_id}` && (
+                        `${me}` === `${currentEvent.user_id}` && (
                           <MenuItem
                             onClick={() => {
                               /* had to add date to eventToEdit object and convert start/end times here for editing 

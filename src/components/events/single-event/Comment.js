@@ -23,7 +23,7 @@ const makeInitials = (user) => {
 };
 
 const Comment = (props) => {
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const timeObject = parseTime(props.dateCreated);
   const classes = cardStyles();
   const user = props.user;
@@ -59,7 +59,7 @@ const Comment = (props) => {
         variables: {
           input: {
             comment_id: Number(props.id),
-            user_id: Number(me.id),
+            user_id: Number(me),
             reaction: emoji,
           },
         },
@@ -75,7 +75,7 @@ const Comment = (props) => {
 
   const addReply = (message) => {
     const replyObject = {
-      user_id: Number(me.id),
+      user_id: Number(me),
       event_id: Number(props.event_id),
       parent_id: Number(props.id),
       root_id: props.root_id === -1 ? Number(props.id) : Number(props.root_id),

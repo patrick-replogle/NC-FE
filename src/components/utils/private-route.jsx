@@ -1,51 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { useHistory, Route } from "react-router-dom";
-import ls from "local-storage";
-import axios from "axios";
+import React from "react";
+import { Route, Redirect } from "react-router-dom";
 
-const qs = require("querystring");
-
-function PrivateRoute({ component: Component, path, ...props }) {
-  const [finalComponent, setFinalComponent] = useState(null);
-
-  const { push } = useHistory();
-
-  useEffect(() => {
-    const validate = async () => {
-      try {
-        if (ls.get("access_token")) {
-          const body = {
-            token: ls.get("access_token"),
-            token_type_hint: "access_token",
-            client_id: "0oasjox1z5iMEk04b4x6",
-          };
-
-          const response = await axios.post(
-            "https://dev-519458.okta.com/oauth2/default/v1/introspect",
-            qs.stringify(body)
-          );
-
-          if (
-            response.status.toString().match(/2[0-9][0-9]/) &&
-            response.data.active
-          ) {
-            setFinalComponent(
-              <Route {...props} path={path} component={Component} />
-            );
-          } else {
-            push("/");
-          }
-        } else push("/");
-      } catch (err) {
-        console.dir(err);
-      }
-    };
-
-    validate();
-    // eslint-disable-next-line
-  }, [path, Component]);
-
-  return finalComponent;
-}
+const PrivateRoute = ({ component: Component, ...rest }) => {
+  return (
+    <Route
+      {...rest}
+      render={(props) => {
+        if (localStorage.getItem("access_token")) {
+          return <Component {...props} />;
+        } else {
+          return <Redirect to="/login" />;
+        }
+      }}
+    />
+  );
+};
 
 export default PrivateRoute;

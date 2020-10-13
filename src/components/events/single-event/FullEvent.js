@@ -23,6 +23,7 @@ const FullEvent = ({ match }) => {
   const eventId = parseInt(match.params.id);
   const dispatch = useDispatch();
   const currentEvent = useSelector((state) => state.currentEvent);
+
   useEffect(() => {
     if (eventId)
       axiosWithAuth()({

@@ -41,7 +41,7 @@ const EventDetails = () => {
   const classes = cardStyles();
   const idFromStore = useSelector((state) => state.activeEvent);
   const currentEventId = thisURL.length > 2 ? thisURL[2] : idFromStore;
-  const me = JSON.parse(sessionStorage.getItem("user"));
+  const me = JSON.parse(localStorage.getItem("user"));
   const event = useSelector((state) => state.currentEvent);
   const [creatorName, setCreatorName] = useState("");
   const [currentStatus, setCurrentStatus] = useState("");
@@ -69,7 +69,7 @@ const EventDetails = () => {
           const data = res.data.data.getUserById;
           setCreatorName(`${data.firstName} ${data.lastName}`);
           setCurrentStatus(
-            event.users.filter((ele) => `${ele.id}` === `${me.id}`)[0].status
+            event.users.filter((ele) => `${ele.id}` === `${me}`)[0].status
           );
           setParticipants(
             event.users.filter((user) => user.status === "Going")
@@ -187,7 +187,7 @@ const EventDetails = () => {
                   {...ele}
                   eventStatus={currentStatus}
                   eventId={event.id}
-                  userId={me.id}
+                  userId={me}
                   setStatus={setCurrentStatus}
                   key={ele.name}
                   setParticipants={setParticipants}
