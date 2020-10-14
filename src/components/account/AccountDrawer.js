@@ -147,6 +147,7 @@ const AccountDrawer = () => {
   const update = useSelector((state) => state.update);
   const history = useHistory();
   const [user, setUser] = useState({});
+  const [initials, setInitials] = useState("");
 
   useEffect(() => {
     if (me) {
@@ -180,18 +181,26 @@ const AccountDrawer = () => {
       })
         .then((res) => {
           setUser(res.data.data.getUserById);
+          let newInitials = makeInitials(res.data.data.getUserById);
+          setInitials(newInitials);
         })
         .catch((err) => {
           console.log(err.message);
         });
     }
     // eslint-disable-next-line
-  }, [setUser]);
+  }, [setUser, setInitials, initials]);
 
   const [modalIsOpen, setModelIsOpen] = useState(false);
 
   const ReffedModalContent = React.forwardRef((props, ref) => (
-    <UserEditModalContent {...props} ref={ref} setUser={setUser} user={user} />
+    <UserEditModalContent
+      {...props}
+      ref={ref}
+      setUser={setUser}
+      initials={initials}
+      setInitials={setInitials}
+    />
   ));
 
   const toggleModalOpen = (e) => {
@@ -244,7 +253,7 @@ const AccountDrawer = () => {
         alt="Picture User Avatar"
         src={user.photo !== "null" ? user.photo : null}
       >
-        {user.photo === "null" && <Typography>{makeInitials(user)}</Typography>}
+        {user.photo === "null" && <Typography>{initials}</Typography>}
       </Avatar>
       <main
         className={clsx(classes.content, {
@@ -297,9 +306,7 @@ const AccountDrawer = () => {
               src={user.photo !== "null" ? user.photo : null}
               alt="Profile Avatar"
             >
-              {user.photo === "null" && (
-                <Typography>{makeInitials(user)}</Typography>
-              )}
+              {user.photo === "null" && <Typography>{initials}</Typography>}
             </Avatar>
             <Typography variant="h5">
               {user.firstName} {user.lastName}
@@ -308,7 +315,7 @@ const AccountDrawer = () => {
           <div className={styleClasses["middle-content-container"]}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <Typography variant="h6">Details</Typography>
-              <Button onClick={toggleModalOpen}>Edit Profile</Button>
+              {/* <Button onClick={toggleModalOpen}>Edit Profile</Button> */}
             </div>
 
             <div>
