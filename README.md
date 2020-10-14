@@ -1,6 +1,6 @@
 # Neighborhood Chef
 
-You can find the deployed project at [www.ourneighborhoodchef.com](https://ourneighborhoodchef.com)
+You can find the deployed project at [https://neighborhood-chef-frontend.herokuapp.com](https://neighborhood-chef-frontend.herokuapp.com)
 
 ![build](https://github.com/Lambda-School-Labs/neighborhood-chef-fe/workflows/build/badge.svg)
 [![Maintainability](https://api.codeclimate.com/v1/badges/217cf613842592864005/maintainability)](https://codeclimate.com/github/Lambda-School-Labs/neighborhood-chef-fe/maintainability)
