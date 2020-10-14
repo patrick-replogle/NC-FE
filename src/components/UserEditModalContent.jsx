@@ -14,6 +14,7 @@ import Geocoder from "react-mapbox-gl-geocoder";
 import { USER_BY_ID } from "../graphql/users/user-queries";
 import { UPDATE_USER } from "../graphql/users/user-mutations";
 import { axiosWithAuth } from "../utilities/axiosWithAuth";
+import { makeInitials } from "../utilities/functions";
 import { print } from "graphql";
 import { Icon } from "@iconify/react";
 import closeRectangle from "@iconify/icons-jam/close-rectangle";
@@ -77,14 +78,13 @@ function UserEditModalContent(props) {
   const mapAccess = {
     mapboxApiAccessToken: process.env.REACT_APP_MAPBOX_ACCESS_TOKEN,
   };
-
   const classes = styles();
   const textBoxClass = textBoxStyles();
-
   const addressLabel = useRef();
   const geoInput = useRef();
-
   const me = localStorage.getItem("user");
+  const [temp, setTemp] = useState({});
+  const [viewport, setViewport] = useState({});
 
   const [userInputs, setUserInputs] = useState({
     firstName: "",
@@ -114,6 +114,7 @@ function UserEditModalContent(props) {
             latitude: res.data.data.getUserById.latitude,
             longitude: res.data.data.getUserById.longitude,
           });
+          setTemp(res.data.data.getUserById);
         })
         .catch((err) => {
           console.log(err.message);
@@ -129,13 +130,6 @@ function UserEditModalContent(props) {
     geoInput.current.classList.add(textBoxClass.addressInput);
     geoInput.current.style.marginTop = 0;
     geoInput.current.style.paddingBottom = "3%";
-
-    userInputs.address
-      ? (geoInput.current.value = userInputs.address)
-      : (geoInput.current.value = userInputs.address);
-
-    addressLabel.current = geoInput.current;
-
     // eslint-disable-next-line
   }, []);
 
@@ -144,31 +138,50 @@ function UserEditModalContent(props) {
     setUserInputs({ ...userInputs, [e.target.name]: e.target.value });
   };
 
-  const handleAddressChange = (e) => {};
+  const onSelected = (viewport, item) => {
+    console.log(viewport, item);
+    setViewport(viewport);
+    setUserInputs({
+      gender: userInputs.gender,
+      address: item.place_name,
+      latitude: item.center[1],
+      longitude: item.center[0],
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axiosWithAuth()({
-      url: `${process.env.REACT_APP_BASE_URL}/graphql`,
-      method: "post",
-      data: {
-        query: print(UPDATE_USER),
-        variables: {
-          input: {
-            ...userInputs,
-            address: geoInput.current.value,
+    if (
+      temp.firstName !== userInputs.firstName ||
+      temp.lastName !== userInputs.lastName ||
+      temp.address !== userInputs.address
+    ) {
+      axiosWithAuth()({
+        url: `${process.env.REACT_APP_BASE_URL}/graphql`,
+        method: "post",
+        data: {
+          query: print(UPDATE_USER),
+          variables: {
+            input: {
+              ...userInputs,
+              address: geoInput.current.value,
+            },
+            id: me,
           },
-          id: me,
         },
-      },
-    })
-      .then((res) => {
-        props.setUser(res.data.data.updateUser);
-        props.toggleOpen();
       })
-      .catch((err) => {
-        console.log(err.message);
-      });
+        .then((res) => {
+          props.setUser(res.data.data.updateUser);
+          let newInitials = makeInitials(res.data.data.updateUser);
+          props.setInitials(newInitials);
+          props.toggleOpen();
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    } else {
+      props.toggleOpen();
+    }
   };
 
   return (
@@ -231,8 +244,8 @@ function UserEditModalContent(props) {
               <Geocoder
                 {...mapAccess}
                 name="address"
-                onSelected={handleAddressChange}
-                limit={2}
+                onSelected={onSelected}
+                limit={3}
                 viewport={"viewport"}
                 hideOnSelect={true}
                 queryParams={"queryParams"}
@@ -243,7 +256,12 @@ function UserEditModalContent(props) {
           }
         />
         <Button
-          disabled={userInputs.firstName === "" || userInputs.lastName === ""}
+          disabled={
+            userInputs.firstName === "" ||
+            userInputs.lastName === "" ||
+            userInputs.address === "" ||
+            userInputs.gender === ""
+          }
           type="submit"
           onClick={handleSubmit}
         >
