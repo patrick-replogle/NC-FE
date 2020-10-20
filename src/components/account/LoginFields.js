@@ -4,9 +4,10 @@ import { TextField } from "formik-material-ui";
 import { Button } from "@material-ui/core";
 import { buttonStyles } from "../../styles";
 import Typography from "@material-ui/core/Typography";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
-const LoginFields = ({ values }) => {
-  const buttonClass = buttonStyles();
+const LoginFields = (props) => {
+  const classes = buttonStyles();
   const [buttonDisable, setButtonDisable] = useState(true);
 
   const checkValues = (e) => {
@@ -42,15 +43,20 @@ const LoginFields = ({ values }) => {
         required
       />
 
-      <Button
-        type="submit"
-        style={{ marginTop: "10%" }}
-        className={`${buttonClass.root} ${buttonClass.active}`}
-        onClick={() => {}}
-        disabled={buttonDisable}
-      >
-        <Typography variant="h5">Submit</Typography>
-      </Button>
+        <Button
+          className={`${classes.root} ${classes.active}`}
+          type="submit"
+          disabled={buttonDisable}
+          style={{marginTop: "30px"}}
+        >
+          <Typography variant="h5">
+            {props.submitting ? (
+              <CircularProgress style={{ color: "white" }} />
+            ) : (
+              "Submit"
+            )}
+          </Typography>
+        </Button>
     </>
   );
 };
