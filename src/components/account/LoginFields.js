@@ -51,7 +51,7 @@ const LoginFields = (props) => {
         >
           <Typography variant="h5">
             {props.submitting ? (
-              <CircularProgress style={{ color: "white" }} />
+              <CircularProgress style={{ color: "white", fontSize: "14px" }} />
             ) : (
               "Submit"
             )}
