@@ -57,6 +57,9 @@ const LoginFields = (props) => {
             )}
           </Typography>
         </Button>
+        {props.errMessage && (
+            <p style={{ color: "crimson" }}>{props.errMessage}</p>
+          )}
     </>
   );
 };
